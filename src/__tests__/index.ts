@@ -90,4 +90,37 @@ describe('html2canvas', () => {
         );
         expect(DocumentCloner.destroy).not.toBeCalled();
     });
+
+    it('should disable caching and requestAnimationFrame in VR mode', async () => {
+        const vrElement = {
+            ownerDocument: {
+                defaultView: {
+                    pageXOffset: 12,
+                    pageYOffset: 34,
+                    VRDisplay: {
+                        isPresenting: true
+                    }
+                }
+            }
+        } as HTMLElement;
+
+        await html2canvas(vrElement, {vrMode: true});
+        expect(CanvasRenderer).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                cache: expect.any(Object),
+                logger: expect.any(Object),
+                windowBounds: expect.objectContaining({left: 12, top: 34}),
+                vrMode: true
+            }),
+            expect.objectContaining({
+                backgroundColor: 0xffffffff,
+                scale: 1,
+                height: 50,
+                width: 200,
+                x: 0,
+                y: 0,
+                canvas: undefined
+            })
+        );
+    });
 });

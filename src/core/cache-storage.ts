@@ -46,9 +46,11 @@ export class Cache {
         }
 
         if (isBlobImage(src) || isRenderable(src)) {
-            (this._cache[src] = this.loadImage(src)).catch(() => {
-                // prevent unhandled rejection
-            });
+            if (!this.context.vrMode) {
+                (this._cache[src] = this.loadImage(src)).catch(() => {
+                    // prevent unhandled rejection
+                });
+            }
             return result;
         }
 
@@ -57,6 +59,9 @@ export class Cache {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     match(src: string): Promise<any> {
+        if (this.context.vrMode) {
+            return Promise.reject('VR mode is enabled, caching is disabled');
+        }
         return this._cache[src];
     }
 
